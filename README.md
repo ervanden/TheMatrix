@@ -25,5 +25,7 @@ Ann pays 52.
 
 Maritza pays 142.
 
+The sum of the 'paid' and 'received' amounts is 0 (if you make one of them negative)
+
 
 
