@@ -1,4 +1,4 @@
-package thematrix;
+
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableModel;
 public class TheMatrix extends JPanel implements ActionListener {
 
     JTable table;
-    MyTableModel tm;
+    MatrixTableModel tm;
     JTextField memberField;
     JTextField itemField;
 
@@ -39,6 +39,7 @@ public class TheMatrix extends JPanel implements ActionListener {
     ArrayList<Float> totals = new ArrayList<>();
     ParticipatedMap participated = new ParticipatedMap();
     PaidMap paid = new PaidMap();
+
 
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
@@ -105,10 +106,8 @@ public class TheMatrix extends JPanel implements ActionListener {
                         JFileChooser fileChooser = new JFileChooser();
             int retval = fileChooser.showOpenDialog(this);
             if (retval == JFileChooser.APPROVE_OPTION) {
-                File fileOut = fileChooser.getSelectedFile();
+                File fileIn = fileChooser.getSelectedFile();
             try {
-                String fileName = "C:\\Users\\ervanden\\Desktop\\table.txt";
-                File fileIn = new File(fileName);
                 InputStream is = new FileInputStream(fileIn);
                 InputStreamReader isr = new InputStreamReader(is, "UTF-8");
                 BufferedReader in = new BufferedReader(isr);
@@ -154,21 +153,24 @@ public class TheMatrix extends JPanel implements ActionListener {
         BoxLayout box = new BoxLayout(this, BoxLayout.PAGE_AXIS);
         this.setLayout(box);
 
-        tm = new MyTableModel();
+        tm = new MatrixTableModel();
         items.add("TOTAL");
 
-        table = new JTable(new MyTableModel());
-        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+        table = new JTable(new MatrixTableModel());
         table.setFillsViewportHeight(true);
         table.setCellSelectionEnabled(true);
 
         JScrollPane scrollPane = new JScrollPane(table);
+
         memberField = new JTextField();
         itemField = new JTextField();
 
         JButton memberButton = new JButton("Add Member");
         memberButton.addActionListener(this);
         memberButton.setActionCommand("Add Member");
+
+        memberField.setMaximumSize(new Dimension(1000,25)); // prevent vertical stretching 
+        itemField.setMaximumSize(new Dimension(1000,25));
 
         JButton itemButton = new JButton("Add Item");
         itemButton.addActionListener(this);
@@ -192,11 +194,12 @@ public class TheMatrix extends JPanel implements ActionListener {
         JPanel itemPane = new JPanel();
         itemPane.setLayout(new BoxLayout(itemPane, BoxLayout.LINE_AXIS));
         itemPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-//        buttonPane.add(Box.createHorizontalGlue());
+
         itemPane.add(itemButton);
         itemPane.add(Box.createRigidArea(new Dimension(10, 0)));
         itemPane.add(itemField);
-
+//        itemPane.add(Box.createHorizontalGlue());
+        
         JPanel ioPane = new JPanel();
         ioPane.setLayout(new BoxLayout(ioPane, BoxLayout.LINE_AXIS));
         ioPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -230,19 +233,6 @@ public class TheMatrix extends JPanel implements ActionListener {
         return member * 2 + 1;
     }
 
-    class ParticipatedMapSerializable implements java.io.Serializable {
-
-        ArrayList<String> members = new ArrayList<>();
-        ArrayList<String> items = new ArrayList<>();
-        ArrayList<Boolean> values = new ArrayList<>();
-
-        void add(String member, String item, Boolean value) {
-            members.add(member);
-            items.add(item);
-            values.add(value);
-        }
-    }
-
     class ParticipatedMap {
 
         HashMap<String, Boolean> m = new HashMap<>();
@@ -253,18 +243,6 @@ public class TheMatrix extends JPanel implements ActionListener {
 
         public void clear() {
             m.clear();
-        }
-
-        public ParticipatedMapSerializable getSerial() {
-            ParticipatedMapSerializable p = new ParticipatedMapSerializable();
-            for (String member : members) {
-                for (String item : items) {
-                    if (participated.get(member, item)) {
-                        p.add(member, item, participated.get(member, item));
-                    }
-                }
-            };
-            return p;
         }
 
         public void add(String member, String item, Boolean value) {
@@ -305,16 +283,6 @@ public class TheMatrix extends JPanel implements ActionListener {
         }
     }
 
-    void printTotals(String header) {
-        String member;
-        System.out.println("\n  ===overview " + header);
-        for (int imem = 0; imem <= members.size() - 1; imem++) {
-            member = members.get(imem);
-            System.out.println("  total for " + member + " " + totals.get(imem));
-        };
-        System.out.println();
-    }
-
     void evaluateTotals() {
         String item;
         String member;
@@ -334,7 +302,6 @@ public class TheMatrix extends JPanel implements ActionListener {
             // count itemConsumers for this item
             for (int imem = 0; imem <= members.size() - 1; imem++) {
                 member = members.get(imem);
-                System.out.println("evaluateTotals " + item + " " + member + " " + paid.get(member, item) + " " + participated.get(member, item));
                 if (participated.get(member, item)) {
                     itemConsumers++;
                 }
@@ -343,35 +310,24 @@ public class TheMatrix extends JPanel implements ActionListener {
 
             if (itemConsumers > 0) {  // if no consumers yet , do not process this item
                 // find the total amount paid for this item 
-                System.out.println("adding paid amounts ");
                 for (int imem = 0; imem <= members.size() - 1; imem++) {
                     member = members.get(imem);
-                    System.out.println("adding paid amount " + paid.get(member, item) + " to " + member);
                     totals.set(imem, totals.get(imem) + paid.get(member, item));
-                    System.out.println("total for " + member + " " + totals.get(imem));
                     itemCost = itemCost + paid.get(member, item);
                 }
 
-                System.out.println("===cost of " + item + "= " + itemCost + " consumers " + itemConsumers);
-
-                System.out.println("subtracting " + (itemCost / itemConsumers) + " from participants");
                 for (int imem = 0; imem <= members.size() - 1; imem++) {
                     member = members.get(imem);
                     if (participated.get(member, item)) {
-                        System.out.println("subtracting " + (itemCost / itemConsumers) + " from " + member);
                         totals.set(imem, totals.get(imem) - (itemCost / itemConsumers));
-                        System.out.println("total for " + member + " " + totals.get(imem));
                     }
 
                 }
-
-                printTotals("final");
-
             }
         }
     }
 
-    class MyTableModel extends DefaultTableModel {
+    class MatrixTableModel extends DefaultTableModel {
 
         public int getColumnCount() {
             return 2 * members.size() + 1;
@@ -450,22 +406,17 @@ public class TheMatrix extends JPanel implements ActionListener {
 
     private static void createAndShowGUI() {
         //Create and set up the window.
-        JFrame frame = new JFrame("TableDemo");
+        JFrame frame = new JFrame("The Matrix");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         //Create and set up the content pane.
         TheMatrix newContentPane = new TheMatrix();
         newContentPane.setOpaque(true); //content panes must be opaque
         frame.setContentPane(newContentPane);
-
-        //Display the window.
         frame.pack();
         frame.setVisible(true);
     }
 
     public static void main(String[] args) {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
