@@ -5,18 +5,18 @@ Suppose you are making a trip with 5 friends: Erik (yourself), Roger, Danny, Ann
 
 Enter in The Matrix :
 
-Erik : 150  participants = Erik,Roger,Danny,Ann,Maritza
-Roger : 75  participants = Erik, Roger, Danny
-Ann : 90 participants = Ann, Maritza
-Danny : 200  Roger : 135  participants = Erik,Roger,Danny,Ann,Maritza
+Erik : 150  participants = Erik,Roger,Danny,Ann,Maritza.
+Roger : 75  participants = Erik, Roger, Danny.
+Ann : 90 participants = Ann, Maritza.
+Danny : 200  Roger : 135  participants = Erik,Roger,Danny,Ann,Maritza.
 
 The Matrix will settle as follows:
 
-Erik receives 28
-Roger receives 88
-Danny receives 78
-Ann pays 52
-Maritza pays 142
+Erik receives 28.
+Roger receives 88.
+Danny receives 78.
+Ann pays 52.
+Maritza pays 142.
 
 
 
