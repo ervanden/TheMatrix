@@ -1,5 +1,4 @@
 
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,7 +38,6 @@ public class TheMatrix extends JPanel implements ActionListener {
     ArrayList<Float> totals = new ArrayList<>();
     ParticipatedMap participated = new ParticipatedMap();
     PaidMap paid = new PaidMap();
-
 
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
@@ -103,46 +101,46 @@ public class TheMatrix extends JPanel implements ActionListener {
             }
         }
         if (action.equals("Load")) {
-                        JFileChooser fileChooser = new JFileChooser();
+            JFileChooser fileChooser = new JFileChooser();
             int retval = fileChooser.showOpenDialog(this);
             if (retval == JFileChooser.APPROVE_OPTION) {
                 File fileIn = fileChooser.getSelectedFile();
-            try {
-                InputStream is = new FileInputStream(fileIn);
-                InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-                BufferedReader in = new BufferedReader(isr);
-                items.clear();
-                members.clear();
-                totals.clear();
-                paid.clear();
-                participated.clear();
-                items.add("TOTAL");
-                String l;
-                String[] ls;
-                while ((l = in.readLine()) != null) {
-                    ls = l.split("\\|");
-                    System.out.println(l);
-                    System.out.println(ls[0]);
-                    if (ls[0].equals("member")) {
-                        members.add(ls[1]);
-                        totals.add(0f);
-                    } else if (ls[0].equals("item")) {
-                        items.add(items.size() - 1, ls[1]);
-                    } else if (ls[0].equals("entry")) {
-                        paid.add(ls[1], ls[2], Float.valueOf(ls[3]));
-                        if (ls[4].equals("true")) {
-                            participated.add(ls[1], ls[2], true);
+                try {
+                    InputStream is = new FileInputStream(fileIn);
+                    InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+                    BufferedReader in = new BufferedReader(isr);
+                    items.clear();
+                    members.clear();
+                    totals.clear();
+                    paid.clear();
+                    participated.clear();
+                    items.add("TOTAL");
+                    String l;
+                    String[] ls;
+                    while ((l = in.readLine()) != null) {
+                        ls = l.split("\\|");
+                        System.out.println(l);
+                        System.out.println(ls[0]);
+                        if (ls[0].equals("member")) {
+                            members.add(ls[1]);
+                            totals.add(0f);
+                        } else if (ls[0].equals("item")) {
+                            items.add(items.size() - 1, ls[1]);
+                        } else if (ls[0].equals("entry")) {
+                            paid.add(ls[1], ls[2], Float.valueOf(ls[3]));
+                            if (ls[4].equals("true")) {
+                                participated.add(ls[1], ls[2], true);
+                            }
                         }
-                    }
-                };
-                in.close();
-                evaluateTotals();
-                tm.fireTableStructureChanged();
-                table.setModel(tm);
-                System.out.println("Table is Loaded");
-            } catch (IOException i) {
-                i.printStackTrace();
-            }
+                    };
+                    in.close();
+                    evaluateTotals();
+                    tm.fireTableStructureChanged();
+                    table.setModel(tm);
+                    System.out.println("Table is Loaded");
+                } catch (IOException i) {
+                    i.printStackTrace();
+                }
             }
         }
     }
@@ -168,13 +166,17 @@ public class TheMatrix extends JPanel implements ActionListener {
         JButton memberButton = new JButton("Add Member");
         memberButton.addActionListener(this);
         memberButton.setActionCommand("Add Member");
-
-        memberField.setMaximumSize(new Dimension(1000,25)); // prevent vertical stretching 
-        itemField.setMaximumSize(new Dimension(1000,25));
+        memberField.addActionListener(this); // execute when <Enter> is pressed
+        memberField.setActionCommand("Add Member");
 
         JButton itemButton = new JButton("Add Item");
         itemButton.addActionListener(this);
         itemButton.setActionCommand("Add Item");
+        itemField.addActionListener(this); // execute when <Enter> is pressed
+        itemField.setActionCommand("Add Item");
+
+        memberField.setMaximumSize(new Dimension(1000, 25)); // prevent vertical stretching 
+        itemField.setMaximumSize(new Dimension(1000, 25));
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(this);
@@ -199,7 +201,7 @@ public class TheMatrix extends JPanel implements ActionListener {
         itemPane.add(Box.createRigidArea(new Dimension(10, 0)));
         itemPane.add(itemField);
 //        itemPane.add(Box.createHorizontalGlue());
-        
+
         JPanel ioPane = new JPanel();
         ioPane.setLayout(new BoxLayout(ioPane, BoxLayout.LINE_AXIS));
         ioPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -208,9 +210,9 @@ public class TheMatrix extends JPanel implements ActionListener {
         ioPane.add(Box.createRigidArea(new Dimension(10, 0)));
         ioPane.add(loadButton);
 
-        add(scrollPane); 
-        add(itemPane); 
-        add(memberPane); 
+        add(scrollPane);
+        add(itemPane);
+        add(memberPane);
         add(ioPane);
     }
 
@@ -386,7 +388,7 @@ public class TheMatrix extends JPanel implements ActionListener {
         }
 
         public boolean isCellEditable(int row, int col) {
-            return (col > 0);
+            return (col > 0) && (row < items.size()-1);
         }
 
         public void setValueAt(Object value, int row, int col) {
