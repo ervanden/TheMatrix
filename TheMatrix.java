@@ -26,9 +26,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+//github test
+
 public class TheMatrix extends JPanel implements ActionListener {
 
     JTable table;
+    int i;
     MatrixTableModel tm;
     JTextField memberField;
     JTextField itemField;
